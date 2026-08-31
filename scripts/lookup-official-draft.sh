@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Print the unpublished official GitHub Release JSON for a SemVer tag.
-# GET /releases/tags/{tag} omits drafts, so this lists releases instead.
+# GET /releases/tags/{tag} omits drafts, and contents:read tokens cannot see
+# unpublished releases. Callers must use a token that can view drafts.
 set -euo pipefail
 
 repo="${1:?repository}"

@@ -194,6 +194,7 @@ assert.ok(
   !releaseSource.includes('/releases/tags/$TAG'),
   'official prepare must not use GET /releases/tags/{tag}, which omits drafts'
 );
+assert.equal(release.jobs['prepare-official-release'].environment, 'release-automation');
 assert.ok(release.jobs['publish-official-release'].if.includes("vars.OFFICIAL_RELEASES_ENABLED == 'true'"));
 assert.equal(release.jobs['publish-official-release'].environment, 'release-automation');
 const officialAttest = release.jobs['attest-official-metadata'];
@@ -208,6 +209,7 @@ assert.deepEqual(Object.keys(officialRecovery.on), ['workflow_dispatch']);
 assert.deepEqual(officialRecovery.concurrency, {group: 'official-release-${{ inputs.tag }}', queue: 'max'});
 assert.deepEqual(officialRecovery.on.workflow_dispatch.inputs.operation.options,
   ['rebuild-draft', 'resume-upload', 'replace-unpublished-assets', 'publish-verified-draft']);
+assert.equal(officialRecovery.jobs.plan.environment, 'release-automation');
 assert.equal(officialRecovery.jobs.mutate.environment, 'release-automation');
 assert.ok(officialRecovery.jobs.mutate.if.includes("vars.OFFICIAL_RECOVERY_READY == 'true'"));
 const officialRecoverySource = read('.github/workflows/release-recovery.yml');

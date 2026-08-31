@@ -254,11 +254,13 @@ source = source.slice(0, hostStart) + `  # Assemble the complete non-publishable
         with:
           subject-path: pr-upload-proof/codex-warp-release-metadata.json
 
-  # Prepare and validate the complete candidate without mutation credentials.
+  # Prepare and validate the complete candidate. Draft lookup needs the App
+  # token because GitHub hides unpublished releases from contents:read tokens.
   prepare-official-release:
     needs: [plan, build-local-artifacts, build-global-artifacts]
     if: \${{ always() && github.event_name == 'push' && github.ref_type == 'tag' && needs.plan.result == 'success' && needs.build-local-artifacts.result == 'success' && needs.build-global-artifacts.result == 'success' }}
     runs-on: ubuntu-24.04
+    environment: release-automation
     permissions:
       contents: read
     outputs:
@@ -294,10 +296,21 @@ source = source.slice(0, hostStart) + `  # Assemble the complete non-publishable
           [[ "$TAG" =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$ ]]
           dist host --tag="$TAG" --steps=upload --steps=release --output-format=json >dist-manifest.json
           node tools/release-please-policy/validate-json.mjs tools/dist-manifest.schema.json dist-manifest.json
+      - id: app-token
+        name: Mint bounded release App token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: \${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: \${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: \${{ github.repository_owner }}
+          repositories: Codex-warp-sandbox
+          permission-contents: write
+          permission-workflows: write
       - id: identity
         name: Bind tag, draft, source, tools, and runners
         shell: bash
         env:
+          GH_TOKEN: \${{ steps.app-token.outputs.token }}
           WORKFLOW_SHA: \${{ github.workflow_sha }}
         run: |
           source_sha="$(git rev-parse HEAD)"
@@ -399,8 +412,20 @@ source = source.slice(0, hostStart) + `  # Assemble the complete non-publishable
         with:
           name: official-release-candidate
           path: release-assets
-      - name: Revalidate candidate and live draft before private key use
+      - id: app-token
+        name: Mint bounded release App token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: \${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: \${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: \${{ github.repository_owner }}
+          repositories: Codex-warp-sandbox
+          permission-contents: write
+          permission-workflows: write
+      - name: Revalidate candidate and live draft
         shell: bash
+        env:
+          GH_TOKEN: \${{ steps.app-token.outputs.token }}
         run: |
           SOURCE_DIR="$PWD" bash scripts/check-release-contract.sh official-publication release-assets release-assets/codex-warp-release-metadata.json release-assets/dist-manifest.json
           [ "$(jq -r '.enabled' tools/release-automation-policy.json)" = true ]
@@ -421,16 +446,6 @@ source = source.slice(0, hostStart) + `  # Assemble the complete non-publishable
           for subject in release-assets/*.tar.xz release-assets/*.zip release-assets/codex-warp-release-metadata.json; do
             bash scripts/verify-official-attestation.sh "$subject" release-assets/codex-warp-release-metadata.json
           done
-      - id: app-token
-        name: Mint bounded release App token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          client-id: \${{ vars.RELEASE_APP_CLIENT_ID }}
-          private-key: \${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-          owner: \${{ github.repository_owner }}
-          repositories: Codex-warp-sandbox
-          permission-contents: write
-          permission-workflows: write
       - name: Revalidate all existing assets after credential issuance
         shell: bash
         env:
