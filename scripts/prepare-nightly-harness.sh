@@ -35,7 +35,7 @@ ln -s "$repo/scripts/test-fixtures/nightly-gh.sh" "$fake_bin/gh"
 
 run_prepare() {
   GITHUB_EVENT_NAME=schedule GITHUB_SHA="$sha" GITHUB_RUN_ID=1 \
-    GITHUB_REPOSITORY=jatmn/Codex-warp GITHUB_OUTPUT="$tmp/output" \
+    GITHUB_REPOSITORY=jatmn/Codex-warp-sandbox GITHUB_OUTPUT="$tmp/output" \
     NIGHTLY_PUBLISH_ENABLED=false PATH="$fake_bin:$PATH" \
     NIGHTLY_GH_FAIL_RELEASES="${NIGHTLY_GH_FAIL_RELEASES:-0}" \
     NIGHTLY_GH_RELEASES_JSON="${NIGHTLY_GH_RELEASES_JSON:-[]}" \

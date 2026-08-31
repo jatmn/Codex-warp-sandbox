@@ -56,7 +56,7 @@ gh() {
 export -f gh
 export NIGHTLY_BRANCH_STATE="$state"
 export NIGHTLY_GH_LOG="$log"
-export GITHUB_REPOSITORY='jatmn/Codex-warp'
+export GITHUB_REPOSITORY='jatmn/Codex-warp-sandbox'
 export SOURCE_SHA='1111111111111111111111111111111111111111'
 export TAG='nightly-20260831-111111111111'
 

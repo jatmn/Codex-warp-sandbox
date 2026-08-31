@@ -436,7 +436,7 @@ source = source.slice(0, hostStart) + `  # Assemble the complete non-publishable
           client-id: \${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: \${{ secrets.RELEASE_APP_PRIVATE_KEY }}
           owner: \${{ github.repository_owner }}
-          repositories: Codex-warp
+          repositories: Codex-warp-sandbox
           permission-contents: write
           permission-workflows: write
       - name: Revalidate all existing assets after credential issuance

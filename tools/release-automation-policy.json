@@ -2,9 +2,9 @@
   "$schema": "./release-automation-policy.schema.json",
   "schemaVersion": 1,
   "enabled": false,
-  "repository": "jatmn/Codex-warp",
+  "repository": "jatmn/Codex-warp-sandbox",
   "baseBranch": "main",
-  "headRepository": "jatmn/Codex-warp",
+  "headRepository": "jatmn/Codex-warp-sandbox",
   "headRef": "release-please--branches--main--components--codex-warp",
   "appBot": {
     "id": null,

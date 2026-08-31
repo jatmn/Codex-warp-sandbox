@@ -62,7 +62,7 @@ printf '%s  %s\n' "$archive_sha" "$archive" >"$OUTPUT_DIR/$archive.sha256"
 native_tools="$({ cmake --version 2>/dev/null | head -1; xcodebuild -version 2>/dev/null | paste -sd ' ' -; nasm -v 2>/dev/null; cc --version 2>/dev/null | head -1; } || true)"
 [ -n "$native_tools" ] || native_tools='not reported by runner'
 jq -n \
-  --arg repository 'jatmn/Codex-warp' --arg tag "$NIGHTLY_TAG" --arg date "$NIGHTLY_DATE" \
+  --arg repository 'jatmn/Codex-warp-sandbox' --arg tag "$NIGHTLY_TAG" --arg date "$NIGHTLY_DATE" \
   --arg source "$NIGHTLY_SOURCE_SHA" --arg base "$base_version" --arg version "$NIGHTLY_VERSION" \
   --arg workflow "$WORKFLOW_URL" --arg workflow_sha "$WORKFLOW_SHA" \
   --arg lock "$(bash scripts/sha256-file.sh Cargo.lock)" \

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jatmn/Codex-warp/blob/main/tools/release-metadata.schema.json",
+  "$id": "https://github.com/jatmn/Codex-warp-sandbox/blob/main/tools/release-metadata.schema.json",
   "title": "Codex Warp release metadata",
   "type": "object",
   "additionalProperties": false,
@@ -16,7 +16,7 @@
     "fileName": {"const": "codex-warp-release-metadata.json"},
     "mode": {"enum": ["official", "pr-upload-proof"]},
     "publishable": {"type": "boolean"},
-    "repository": {"const": "jatmn/Codex-warp"},
+    "repository": {"const": "jatmn/Codex-warp-sandbox"},
     "sourceSha": {"$ref": "#/$defs/sha"},
     "cargoVersion": {"$ref": "#/$defs/semver"},
     "cargoLockSha256": {"$ref": "#/$defs/digest"},

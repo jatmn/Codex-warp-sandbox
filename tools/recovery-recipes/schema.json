@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jatmn/Codex-warp/blob/main/tools/recovery-recipes/schema.json",
+  "$id": "https://github.com/jatmn/Codex-warp-sandbox/blob/main/tools/recovery-recipes/schema.json",
   "title": "Codex Warp tag-specific recovery recipe",
   "type": "object",
   "additionalProperties": false,

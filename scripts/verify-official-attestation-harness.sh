@@ -18,9 +18,9 @@ export VERIFY_ATTESTATION_LOG="$log"
 source_sha='1111111111111111111111111111111111111111'
 workflow_sha='2222222222222222222222222222222222222222'
 jq -n --arg source "$source_sha" --arg workflow "$workflow_sha" \
-  '{repository:"jatmn/Codex-warp",sourceSha:$source,tag:"v1.2.3",workflow:{name:"Release",workflowSha:$workflow}}' >"$metadata"
+  '{repository:"jatmn/Codex-warp-sandbox",sourceSha:$source,tag:"v1.2.3",workflow:{name:"Release",workflowSha:$workflow}}' >"$metadata"
 bash "$root/scripts/verify-official-attestation.sh" "$subject" "$metadata"
-grep -F -- '--signer-workflow jatmn/Codex-warp/.github/workflows/release.yml' "$log" >/dev/null
+grep -F -- '--signer-workflow jatmn/Codex-warp-sandbox/.github/workflows/release.yml' "$log" >/dev/null
 grep -F -- '--source-ref refs/tags/v1.2.3' "$log" >/dev/null
 grep -F -- "--source-digest $source_sha" "$log" >/dev/null
 grep -F -- '--deny-self-hosted-runners' "$log" >/dev/null
@@ -28,7 +28,7 @@ grep -F -- '--deny-self-hosted-runners' "$log" >/dev/null
 : >"$log"
 jq --arg workflow "$workflow_sha" '.workflow={name:"Release Recovery",workflowSha:$workflow}' "$metadata" >"$tmp/recovery.json"
 bash "$root/scripts/verify-official-attestation.sh" "$subject" "$tmp/recovery.json"
-grep -F -- '--signer-workflow jatmn/Codex-warp/.github/workflows/release-recovery.yml' "$log" >/dev/null
+grep -F -- '--signer-workflow jatmn/Codex-warp-sandbox/.github/workflows/release-recovery.yml' "$log" >/dev/null
 grep -F -- '--source-ref refs/heads/main' "$log" >/dev/null
 grep -F -- "--source-digest $workflow_sha" "$log" >/dev/null
 

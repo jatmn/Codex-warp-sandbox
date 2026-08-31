@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jatmn/Codex-warp/blob/main/tools/release-automation-policy.schema.json",
+  "$id": "https://github.com/jatmn/Codex-warp-sandbox/blob/main/tools/release-automation-policy.schema.json",
   "title": "Codex Warp release automation identity policy",
   "type": "object",
   "additionalProperties": false,
@@ -19,9 +19,9 @@
     "$schema": {"const": "./release-automation-policy.schema.json"},
     "schemaVersion": {"const": 1},
     "enabled": {"type": "boolean"},
-    "repository": {"const": "jatmn/Codex-warp"},
+    "repository": {"const": "jatmn/Codex-warp-sandbox"},
     "baseBranch": {"const": "main"},
-    "headRepository": {"const": "jatmn/Codex-warp"},
+    "headRepository": {"const": "jatmn/Codex-warp-sandbox"},
     "headRef": {"type": "string", "minLength": 1},
     "appBot": {
       "type": "object",

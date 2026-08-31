@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "application": "codex-warp",
-  "repository": "jatmn/Codex-warp",
+  "repository": "jatmn/Codex-warp-sandbox",
   "targets": [
     {"triple": "x86_64-unknown-linux-gnu", "archive": "codex-warp-x86_64-unknown-linux-gnu.tar.xz", "binary": "codex-warp"},
     {"triple": "aarch64-apple-darwin", "archive": "codex-warp-aarch64-apple-darwin.tar.xz", "binary": "codex-warp"},

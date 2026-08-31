@@ -22,7 +22,7 @@ for target in x86_64-unknown-linux-gnu aarch64-apple-darwin x86_64-apple-darwin 
   OUTPUT_DIR="$output" \
   RUNNER_LABEL=local \
   RUNNER_IMAGE=local-test \
-  WORKFLOW_URL=https://github.com/jatmn/Codex-warp/actions/runs/1 \
+  WORKFLOW_URL=https://github.com/jatmn/Codex-warp-sandbox/actions/runs/1 \
   WORKFLOW_SHA="$sha" \
   bash scripts/package-nightly.sh >/dev/null
 done

@@ -64,7 +64,7 @@ for (const [index, testCase] of fixture.cases.entries()) {
 
   const notes = await notesBuilder.buildNotes(commits, {
     owner: 'jatmn',
-    repository: 'Codex-warp',
+    repository: 'Codex-warp-sandbox',
     version: testCase.version ?? fixture.baseVersion,
     currentTag: `v${testCase.version ?? fixture.baseVersion}`,
     targetBranch: 'main',

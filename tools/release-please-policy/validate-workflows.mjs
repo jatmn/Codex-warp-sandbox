@@ -95,7 +95,7 @@ assert.deepEqual(rpToken.with, {
   'client-id': '${{ vars.RELEASE_APP_CLIENT_ID }}',
   'private-key': '${{ secrets.RELEASE_APP_PRIVATE_KEY }}',
   owner: '${{ github.repository_owner }}',
-  repositories: 'Codex-warp',
+  repositories: 'Codex-warp-sandbox',
   'permission-contents': 'write',
   'permission-pull-requests': 'write',
   'permission-issues': 'write',

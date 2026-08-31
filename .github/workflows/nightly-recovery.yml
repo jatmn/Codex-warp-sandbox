@@ -410,7 +410,7 @@ jobs:
           client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          repositories: Codex-warp
+          repositories: Codex-warp-sandbox
           permission-contents: write
           permission-workflows: write
       - name: Revalidate the exact attested state after credential issuance
@@ -542,7 +542,7 @@ jobs:
           branch="$(git ls-remote origin refs/heads/nightly|awk '{print $1}')"; if [ -n "$branch" ]; then git merge-base --is-ancestor "$branch" "$SOURCE_SHA"; fi
       - id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with: {client-id: '${{ vars.RELEASE_APP_CLIENT_ID }}', private-key: '${{ secrets.RELEASE_APP_PRIVATE_KEY }}', owner: '${{ github.repository_owner }}', repositories: Codex-warp, permission-contents: write, permission-workflows: write}
+        with: {client-id: '${{ vars.RELEASE_APP_CLIENT_ID }}', private-key: '${{ secrets.RELEASE_APP_PRIVATE_KEY }}', owner: '${{ github.repository_owner }}', repositories: Codex-warp-sandbox, permission-contents: write, permission-workflows: write}
       - name: Create or fast-forward nightly branch only
         env: {GH_TOKEN: '${{ steps.app-token.outputs.token }}'}
         run: |

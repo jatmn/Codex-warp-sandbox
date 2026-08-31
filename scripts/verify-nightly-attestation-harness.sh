@@ -32,13 +32,13 @@ export -f gh
 export VERIFY_ATTESTATION_LOG="$log"
 
 jq -n --arg source "$source_sha" --arg workflow "$workflow_sha" \
-  '{repository:"jatmn/Codex-warp",sourceSha:$source,tag:"nightly-20260831-111111111111",workflow:"https://github.com/jatmn/Codex-warp/actions/runs/9",workflowSha:$workflow}' \
+  '{repository:"jatmn/Codex-warp-sandbox",sourceSha:$source,tag:"nightly-20260831-111111111111",workflow:"https://github.com/jatmn/Codex-warp-sandbox/actions/runs/9",workflowSha:$workflow}' \
   >"$manifest"
 
 NIGHTLY_RUN_JSON="$(run_json Nightly '.github/workflows/nightly.yml' "$source_sha")"
 export NIGHTLY_RUN_JSON
 bash "$root/scripts/verify-nightly-attestation.sh" "$subject" "$manifest"
-grep -F -- '--signer-workflow jatmn/Codex-warp/.github/workflows/nightly.yml' "$log" >/dev/null
+grep -F -- '--signer-workflow jatmn/Codex-warp-sandbox/.github/workflows/nightly.yml' "$log" >/dev/null
 grep -F -- '--source-ref refs/heads/main' "$log" >/dev/null
 grep -F -- "--source-digest $source_sha" "$log" >/dev/null
 grep -F -- '--deny-self-hosted-runners' "$log" >/dev/null
@@ -47,7 +47,7 @@ grep -F -- '--deny-self-hosted-runners' "$log" >/dev/null
 NIGHTLY_RUN_JSON="$(run_json 'Nightly Recovery' '.github/workflows/nightly-recovery.yml' "$workflow_sha")"
 export NIGHTLY_RUN_JSON
 bash "$root/scripts/verify-nightly-attestation.sh" "$subject" "$manifest"
-grep -F -- '--signer-workflow jatmn/Codex-warp/.github/workflows/nightly-recovery.yml' "$log" >/dev/null
+grep -F -- '--signer-workflow jatmn/Codex-warp-sandbox/.github/workflows/nightly-recovery.yml' "$log" >/dev/null
 grep -F -- "--source-digest $workflow_sha" "$log" >/dev/null
 
 NIGHTLY_RUN_JSON="$(run_json CI '.github/workflows/ci.yml' "$source_sha")"

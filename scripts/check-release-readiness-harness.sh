@@ -25,14 +25,14 @@ fixture() {
 
 allowed='[".release-please-manifest.json","CHANGELOG.md","Cargo.lock","Cargo.toml"]'
 empty_state='{"tags":[],"releases":[],"activeOfficialTags":[]}'
-genuine_args=('jatmn/Codex-warp' 'main' 'jatmn/Codex-warp' 'release-please--branches--main--components--codex-warp' '12345' 'codex-warp-release[bot]' 'Bot')
+genuine_args=('jatmn/Codex-warp-sandbox' 'main' 'jatmn/Codex-warp-sandbox' 'release-please--branches--main--components--codex-warp' '12345' 'codex-warp-release[bot]' 'Bot')
 
 fixture genuine "${genuine_args[@]}" 'different-rerun-actor' "$allowed" "$empty_state"
-fixture ordinary jatmn/Codex-warp main jatmn/Codex-warp feature/topic 99 contributor User contributor "$allowed" "$empty_state"
-fixture branch-only jatmn/Codex-warp main jatmn/Codex-warp release-please--branches--main--components--codex-warp 99 contributor User contributor "$allowed" "$empty_state"
-fixture author-only jatmn/Codex-warp main jatmn/Codex-warp feature/topic 12345 'codex-warp-release[bot]' Bot maintainer "$allowed" "$empty_state"
-fixture fork-head jatmn/Codex-warp main attacker/Codex-warp release-please--branches--main--components--codex-warp 12345 'codex-warp-release[bot]' Bot maintainer "$allowed" "$empty_state"
-fixture wrong-base jatmn/Codex-warp develop jatmn/Codex-warp release-please--branches--main--components--codex-warp 12345 'codex-warp-release[bot]' Bot maintainer "$allowed" "$empty_state"
+fixture ordinary jatmn/Codex-warp-sandbox main jatmn/Codex-warp-sandbox feature/topic 99 contributor User contributor "$allowed" "$empty_state"
+fixture branch-only jatmn/Codex-warp-sandbox main jatmn/Codex-warp-sandbox release-please--branches--main--components--codex-warp 99 contributor User contributor "$allowed" "$empty_state"
+fixture author-only jatmn/Codex-warp-sandbox main jatmn/Codex-warp-sandbox feature/topic 12345 'codex-warp-release[bot]' Bot maintainer "$allowed" "$empty_state"
+fixture fork-head jatmn/Codex-warp-sandbox main attacker/Codex-warp release-please--branches--main--components--codex-warp 12345 'codex-warp-release[bot]' Bot maintainer "$allowed" "$empty_state"
+fixture wrong-base jatmn/Codex-warp-sandbox develop jatmn/Codex-warp-sandbox release-please--branches--main--components--codex-warp 12345 'codex-warp-release[bot]' Bot maintainer "$allowed" "$empty_state"
 fixture unexpected-file "${genuine_args[@]}" maintainer '[".release-please-manifest.json","CHANGELOG.md","Cargo.lock","Cargo.toml","src/version.rs"]' "$empty_state"
 fixture draft "${genuine_args[@]}" maintainer "$allowed" '{"tags":["v0.1.0"],"releases":[{"id":1,"tag_name":"v0.1.0","draft":true,"prerelease":false,"published_at":null,"complete":false}],"activeOfficialTags":[]}'
 fixture missing-release "${genuine_args[@]}" maintainer "$allowed" '{"tags":["v0.1.0"],"releases":[],"activeOfficialTags":[]}'

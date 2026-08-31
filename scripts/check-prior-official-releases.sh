@@ -4,7 +4,7 @@ set -euo pipefail
 
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
-repository="${GITHUB_REPOSITORY:-jatmn/Codex-warp}"
+repository="${GITHUB_REPOSITORY:-jatmn/Codex-warp-sandbox}"
 fixture=false
 
 verify_complete_release() {

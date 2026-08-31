@@ -286,7 +286,7 @@ jobs:
           client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          repositories: Codex-warp
+          repositories: Codex-warp-sandbox
           permission-contents: write
           permission-workflows: write
       - name: Create immutable nightly tag and receipt
@@ -425,7 +425,7 @@ jobs:
           client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          repositories: Codex-warp
+          repositories: Codex-warp-sandbox
           permission-contents: write
           permission-workflows: write
       - name: Create or fast-forward nightly branch only
