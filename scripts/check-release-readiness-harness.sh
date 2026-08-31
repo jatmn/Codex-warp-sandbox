@@ -53,6 +53,14 @@ expect_fail() {
 expect_ok genuine
 expect_ok ordinary
 expect_fail branch-only
+# Push CI sets GITHUB_EVENT_NAME=push; a fixture path must still classify.
+if ! GITHUB_EVENT_NAME=push RELEASE_AUTOMATION_POLICY="$tmp/policy.json" \
+    bash scripts/check-release-readiness.sh "$tmp/branch-only.json" >/dev/null 2>&1; then
+  :
+else
+  echo 'check-release-readiness-harness: push event name skipped a fixture file' >&2
+  exit 1
+fi
 expect_fail author-only
 expect_fail fork-head
 expect_fail wrong-base
