@@ -27,6 +27,20 @@ copy_contract_tree "$tmp/bound"
 bound_digest="$(bash "$tmp/bound/scripts/nightly-contract-digest.sh" "$tmp/bound")"
 [[ "$bound_digest" =~ ^[0-9a-f]{64}$ ]]
 
+copy_contract_tree "$tmp/crlf"
+python3 - "$tmp/crlf/tools/nightly-packaging-contract.txt" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+text = path.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+path.write_bytes(text)
+PY
+if ! crlf_digest="$(bash "$tmp/crlf/scripts/nightly-contract-digest.sh" "$tmp/crlf")"; then
+  echo 'nightly-contract-digest-harness: a CRLF contract list failed to digest' >&2
+  exit 1
+fi
+[[ "$crlf_digest" =~ ^[0-9a-f]{64}$ ]]
+
 printf '\n# contract-binding marker\n' >>"$tmp/bound/scripts/nightly-contract-digest.sh"
 mutated_helper="$(bash "$tmp/bound/scripts/nightly-contract-digest.sh" "$tmp/bound")"
 if [ "$mutated_helper" = "$bound_digest" ]; then
@@ -35,7 +49,7 @@ if [ "$mutated_helper" = "$bound_digest" ]; then
 fi
 
 copy_contract_tree "$tmp/skip"
-sed -i 's/find "$root\/${input%\/}" -type f -print/continue/' "$tmp/skip/scripts/nightly-contract-digest.sh"
+sed -i 's/find "${input%\/}" -type f -print/continue/' "$tmp/skip/scripts/nightly-contract-digest.sh"
 skipped="$(bash "$tmp/skip/scripts/nightly-contract-digest.sh" "$tmp/skip")"
 if [ "$skipped" = "$bound_digest" ]; then
   echo 'nightly-contract-digest-harness: skipping selected packaging inputs did not change packagingContractSha256' >&2

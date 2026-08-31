@@ -12,6 +12,13 @@ done
 
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
+# Windows runners may materialize CRLF working trees. Identity hashes and
+# packaged text files must match the LF git blobs used on other runners.
+if [ "${RUNNER_OS:-}" = Windows ]; then
+  git config core.autocrlf false
+  git config core.eol lf
+  git reset --hard HEAD
+fi
 base_version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)"
 [ "$NIGHTLY_VERSION" = "$base_version-nightly.$NIGHTLY_DATE+${NIGHTLY_SOURCE_SHA:0:12}" ]
 [ "$(git rev-parse HEAD)" = "$NIGHTLY_SOURCE_SHA" ]
@@ -61,13 +68,15 @@ printf '%s  %s\n' "$archive_sha" "$archive" >"$OUTPUT_DIR/$archive.sha256"
 
 native_tools="$({ cmake --version 2>/dev/null | head -1; xcodebuild -version 2>/dev/null | paste -sd ' ' -; nasm -v 2>/dev/null; cc --version 2>/dev/null | head -1; } || true)"
 [ -n "$native_tools" ] || native_tools='not reported by runner'
+contract="$(bash scripts/nightly-contract-digest.sh)" || exit 1
+[[ "$contract" =~ ^[0-9a-f]{64}$ ]] || { echo 'package-nightly: invalid packaging contract digest' >&2; exit 1; }
 jq -n \
   --arg repository 'jatmn/Codex-warp-sandbox' --arg tag "$NIGHTLY_TAG" --arg date "$NIGHTLY_DATE" \
   --arg source "$NIGHTLY_SOURCE_SHA" --arg base "$base_version" --arg version "$NIGHTLY_VERSION" \
   --arg workflow "$WORKFLOW_URL" --arg workflow_sha "$WORKFLOW_SHA" \
   --arg lock "$(bash scripts/sha256-file.sh Cargo.lock)" \
   --arg toolchain "$(bash scripts/sha256-file.sh rust-toolchain.toml)" \
-  --arg contract "$(bash scripts/nightly-contract-digest.sh)" \
+  --arg contract "$contract" \
   --arg script "$(bash scripts/sha256-file.sh scripts/package-nightly.sh)" \
   --arg target "$TARGET" --arg archive "$archive" --arg archive_sha "$archive_sha" \
   --arg checksum "$archive.sha256" --arg runner "$RUNNER_LABEL" --arg image "$RUNNER_IMAGE" \
