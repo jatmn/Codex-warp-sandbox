@@ -186,6 +186,14 @@ assert.deepEqual(proofAttest.permissions, {attestations: 'write', contents: 'rea
 assert.ok(proofAttest.steps.some(step => typeof step.run === 'string' && step.run.includes('check-release-contract.sh pr-upload-proof')));
 assert.equal(proofAttest.steps.find(step => step.uses?.startsWith('actions/attest-build-provenance@')).with['subject-path'],
   'pr-upload-proof/codex-warp-release-metadata.json');
+assert.ok(
+  releaseSource.includes('bash scripts/lookup-official-draft.sh "${{ github.repository }}" "$TAG"'),
+  'official prepare must look up the unpublished draft by listing releases'
+);
+assert.ok(
+  !releaseSource.includes('/releases/tags/$TAG'),
+  'official prepare must not use GET /releases/tags/{tag}, which omits drafts'
+);
 assert.ok(release.jobs['publish-official-release'].if.includes("vars.OFFICIAL_RELEASES_ENABLED == 'true'"));
 assert.equal(release.jobs['publish-official-release'].environment, 'release-automation');
 const officialAttest = release.jobs['attest-official-metadata'];

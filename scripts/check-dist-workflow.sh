@@ -36,6 +36,11 @@ assert_safe_overlay() {
   grep -F "'v[0-9]+.[0-9]+.[0-9]+'" "$workflow" >/dev/null
   grep -F 'queue: max' "$workflow" >/dev/null
   grep -F 'bash scripts/install-pinned-dist.sh' "$workflow" >/dev/null
+  grep -F 'bash scripts/lookup-official-draft.sh' "$workflow" >/dev/null
+  if grep -F '/releases/tags/$TAG' "$workflow" >/dev/null; then
+    echo 'check-dist-workflow: official prepare must not look up drafts by tag endpoint' >&2
+    exit 1
+  fi
   grep -F 'Upload only missing verified assets' "$workflow" >/dev/null
   grep -F 'Verify complete remote checksums' "$workflow" >/dev/null
   grep -F 'Publish exact verified draft' "$workflow" >/dev/null

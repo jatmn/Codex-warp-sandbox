@@ -390,15 +390,7 @@ jobs:
           [ "$source_sha" = "$peeled" ]
           version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)"
           [ "$TAG" = "v$version" ]
-          release=''
-          for attempt in {1..12}; do
-            if release="$(gh api "repos/${{ github.repository }}/releases/tags/$TAG" 2>/dev/null)"; then
-              break
-            fi
-            [ "$attempt" -lt 12 ] && sleep 5
-          done
-          [ -n "$release" ] || { echo "Release Please did not create the expected draft for $TAG" >&2; exit 1; }
-          jq -e --arg tag "$TAG" '.tag_name == $tag and .draft == true and .published_at == null and .prerelease == false' <<<"$release" >/dev/null
+          release="$(bash scripts/lookup-official-draft.sh "${{ github.repository }}" "$TAG")"
           release_id="$(jq -r '.id' <<<"$release")"
           runners="$(jq -sc 'sort_by(.target)' target/distrib/*-runner.json)"
           [ "$(jq 'length' <<<"$runners")" -eq 4 ]

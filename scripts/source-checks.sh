@@ -73,6 +73,10 @@ if command -v node >/dev/null 2>&1; then
     fail=1
   fi
 
+  if ! bash scripts/lookup-official-draft-harness.sh; then
+    fail=1
+  fi
+
   if ! bash scripts/verify-official-attestation-harness.sh; then
     fail=1
   fi
