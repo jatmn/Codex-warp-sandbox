@@ -20,9 +20,11 @@ const validatePolicy = ajv2020.compile(read('tools/release-automation-policy.sch
 const policy = read('tools/release-automation-policy.json');
 assert.equal(validatePolicy(policy), true, ajv2020.errorsText(validatePolicy.errors));
 assert.ok(policy.requiredFiles.every(file => policy.allowedFiles.includes(file)));
-assert.equal(policy.enabled, false, 'live App identity must be reviewed before enabling policy');
-assert.equal(policy.appBot.id, null);
-assert.equal(policy.appBot.login, null);
+assert.equal(policy.repository, 'jatmn/Codex-warp-sandbox');
+assert.equal(policy.enabled, true, 'sandbox App identity is recorded; keep production fail-closed');
+assert.equal(policy.appBot.id, 323326878);
+assert.equal(policy.appBot.login, 'codex-warp-sandbox-bot[bot]');
+assert.equal(policy.appBot.type, 'Bot');
 
 const tooling = read('tools/release-tooling.json');
 const policyPackage = read('tools/release-please-policy/package.json');

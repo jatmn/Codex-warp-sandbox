@@ -1,14 +1,14 @@
 {
   "$schema": "./release-automation-policy.schema.json",
   "schemaVersion": 1,
-  "enabled": false,
+  "enabled": true,
   "repository": "jatmn/Codex-warp-sandbox",
   "baseBranch": "main",
   "headRepository": "jatmn/Codex-warp-sandbox",
   "headRef": "release-please--branches--main--components--codex-warp",
   "appBot": {
-    "id": null,
-    "login": null,
+    "id": 323326878,
+    "login": "codex-warp-sandbox-bot[bot]",
     "type": "Bot"
   },
   "requiredFiles": [
