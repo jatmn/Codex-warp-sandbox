@@ -390,18 +390,17 @@ tag but fails before creating the draft, dist must not create or publish a
 replacement release.
 
 Treat that correct-tag/missing-draft state as an explicit Release Please
-continuation, not an ordinary dist recovery. In Phase 0, before either release
-channel is implemented, use a dedicated non-production sandbox repository with
-the pinned Action/dependency to construct the exact state left after forced tag creation
-(merged release PR, correct protected tag at its SHA, and no release), then prove
-that running/rerunning the same Release Please workflow converges by creating one
-draft for the existing immutable tag without moving it, creating a second tag,
-or proposing a newer version. After that draft exists, rerun the failed dist run
-or use the guarded existing-draft recovery workflow. Record the originating and
-continuation run IDs, exact release PR, tag, peeled SHA, and resulting release ID.
-If the pinned version cannot pass this proof, do not enable official publication;
-replace it or design a separately reviewed, evidence-bound missing-draft recovery
-before rollout. Never improvise a release in the production repository.
+continuation, not an ordinary dist recovery. The pinned Release Please Action
+treats an existing Git tag as the release and will not POST a GitHub draft for
+it. The separately reviewed recovery is `scripts/create-missing-official-draft.sh`
+in the Release Please workflow: after the App-token prior-release recheck, it
+creates one unpublished official draft bound to that tag's peeled SHA and skips
+the Release Please action so overlay commits after the tag cannot open a newer
+version PR. Do not use `gh release create` for this state. After that draft
+exists, rerun the failed dist run or use the guarded existing-draft recovery
+workflow. Record the originating and continuation run IDs, exact release PR,
+tag, peeled SHA, and resulting release ID. Never improvise a release in the
+production repository.
 
 Add a required release-readiness mode to the existing protected `Source Checks`
 job. Store the trusted classifier inputs in checked-in
@@ -430,8 +429,9 @@ A new Release Please PR still cannot merge in the correct-tag/missing-draft
 state. The Release Please workflow itself may continue that newest tag: it
 allows the latest official SemVer tag to have zero release objects, then
 rechecks with the App token because GitHub hides unpublished drafts from
-contents:read `GITHUB_TOKEN`. That continuation creates one draft for the
-existing unmoved tag and must not propose a newer version.
+contents:read `GITHUB_TOKEN`. `scripts/create-missing-official-draft.sh` then
+creates one unpublished draft for the existing unmoved tag and skips the
+pinned Action so that continuation cannot propose a newer version.
 
 Ordinary contributor PRs do not need this release-state check. A PR that matches
 the configured release branch or recorded App identity but fails any other
@@ -1581,9 +1581,10 @@ generating a new date-based tag today.
   continue PR reconciliation normally.
 - Release Please forced-tag creation followed by missing-draft failure: verify the
   exact release PR/tag/peeled SHA and use only the tested same-workflow Release
-  Please continuation from Section 7.3. Once it creates the one correct draft,
-  rerun dist or use official existing-draft recovery. If the pinned-version
-  convergence proof does not pass, official automation remains disabled.
+  Please continuation from Section 7.3, which runs
+  `scripts/create-missing-official-draft.sh` and skips opening a newer version.
+  Once it creates the one correct draft, rerun dist or use official existing-draft
+  recovery. Do not use `gh release create`.
 - Official build failure: draft remains unpublished; fix infrastructure or use
   guarded recovery.
 - Official upload failure: draft remains. Upload only missing assets through
@@ -1738,12 +1739,12 @@ existing harness patterns should be extended rather than duplicated.
 - [ ] Before implementing either publication channel, use the pinned Release
       Please Action/dependency and equivalent draft/forced-tag settings in the
       sandbox to construct the exact correct-tag/no-release state after a merged
-      release PR. Prove running and rerunning the workflow creates exactly one
-      draft for the existing unmoved tag, records the same release PR/SHA, and
-      neither retags nor advances the version. Then prove existing-draft
+      release PR. The pinned Action will not POST a GitHub draft when that tag
+      already exists; prove `scripts/create-missing-official-draft.sh` in the
+      same workflow creates exactly one unpublished draft for the existing
+      unmoved tag and skips proposing a newer version. Then prove existing-draft
       continuation can finish it. Record the immutable Action/dependency,
-      settings, run IDs, tag/release IDs, and cleanup receipt. Stop for reviewed
-      controller redesign before Phase 1 if this proof fails.
+      settings, run IDs, tag/release IDs, and cleanup receipt.
 - [ ] Select the external nightly-liveness monitor, owner, read-only access model,
       and maintainer notification destination. Confirm it can preserve the newest
       scheduled run's `created_at`, query completed conclusion separately, and
@@ -2322,10 +2323,11 @@ The project is complete when all of the following are true:
       announcement is implicit and its sidecar is explicitly non-publishable
       `pr-upload-proof` mode bound to the exact PR/build/run identity.
 - [ ] The pinned Release Please version has passed the sandbox
-      correct-tag/missing-draft convergence proof; its documented continuation
-      creates one draft without moving/duplicating the tag or changing version.
-      This proof is complete before Phase 1 unless later pinned/settings drift
-      requires it to be repeated.
+      correct-tag/missing-draft convergence proof; the documented continuation
+      `scripts/create-missing-official-draft.sh` creates one draft without
+      moving/duplicating the tag or changing version. This proof is complete
+      before Phase 1 unless later pinned/settings drift requires it to be
+      repeated.
 - [ ] An official release cannot publish with a missing required target.
 - [ ] Official recovery handles GitHub `starter` remnants and wrong-digest assets
       only through evidence-backed `replace-unpublished-assets` against the exact

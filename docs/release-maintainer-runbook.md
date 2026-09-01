@@ -137,7 +137,9 @@ an intentional true value.
 8. Set `NIGHTLY_PUBLISH_ENABLED=true` only after the manual publication proof.
 9. Set `OFFICIAL_RECOVERY_READY=true` only after its sandbox campaign passes.
 10. Set `OFFICIAL_RELEASES_ENABLED=true` only after the pinned Release Please
-    forced-tag/missing-draft continuation proof passes in the sandbox.
+    forced-tag/missing-draft continuation proof passes in the sandbox. That
+    proof uses `scripts/create-missing-official-draft.sh` because the pin does
+    not POST a GitHub draft when the Git tag already exists.
 11. Confirm Release Please opens one internal App-authored release PR and that
     the readiness classifier recognizes its exact creator/head/base/files.
 12. For the bootstrap only, ensure the setup squash commit includes

@@ -113,11 +113,32 @@ assert.ok(read('.github/workflows/release-please.yml').includes('OFFICIAL_ALLOW_
   'Release Please may continue a missing-draft latest tag');
 assert.ok(!read('scripts/check-release-readiness.sh').includes('OFFICIAL_ALLOW_MISSING_LATEST_TAG'),
   'a new official release PR must not merge while the latest tag is unpublished');
+const rpMissingDraft = rpSteps.find(step => step.id === 'missing-draft');
+assert.equal(rpMissingDraft.env.GH_TOKEN, '${{ steps.app-token.outputs.token }}',
+  'missing-draft create must use the draft-visible App token');
+assert.equal(rpMissingDraft.run, 'bash scripts/create-missing-official-draft.sh');
+assert.ok(rpTokenIdx < rpSteps.indexOf(rpPriorAfterToken) &&
+  rpSteps.indexOf(rpPriorAfterToken) < rpSteps.indexOf(rpMissingDraft) &&
+  rpSteps.indexOf(rpMissingDraft) < rpActionIdx,
+  'missing-draft create must run after the App-token prior-release recheck and before Release Please');
 const rpAction = releasePlease.jobs['release-please'].steps.find(step => step.id === 'release');
+assert.equal(rpAction.if, "steps.missing-draft.outputs.created != 'true'",
+  'Release Please must not open a newer version while it just created the missing draft');
 assert.equal(rpAction.uses, `googleapis/release-please-action@${tooling.releasePleaseAction.commit}`);
 assert.equal(rpAction.with['target-branch'], 'main');
 assert.equal(rpAction.with['config-file'], 'release-please-config.json');
 assert.equal(rpAction.with['manifest-file'], '.release-please-manifest.json');
+const missingDraftSource = read('scripts/create-missing-official-draft.sh');
+assert.ok(missingDraftSource.includes('--method POST'),
+  'missing-draft create must POST /releases');
+assert.ok(!missingDraftSource.includes('/releases/tags/'),
+  'missing-draft create must not look up drafts by published tag');
+assert.ok(!missingDraftSource.includes('gh release'),
+  'missing-draft create must not use gh release create');
+assert.ok(missingDraftSource.includes('target_commitish'),
+  'missing-draft create must bind the draft to the peeled tag SHA');
+assert.ok(!read('.github/workflows/release-please.yml').includes('gh release create'),
+  'Release Please must not use gh release create');
 
 const nightly = parse('.github/workflows/nightly.yml');
 assert.deepEqual(nightly.concurrency, {group: 'nightly-release', queue: 'max'});
