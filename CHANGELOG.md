@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.0...v0.1.1) (2026-09-01)
+
+
+### Bug Fixes
+
+* **release:** assemble official candidates from the contract file set ([b60436a](https://github.com/jatmn/Codex-warp-sandbox/commit/b60436aa18ea237a12767cc5a3726f828c1b5a4f))
+* **release:** look up official drafts from the release list ([2f89b78](https://github.com/jatmn/Codex-warp-sandbox/commit/2f89b78b0435927600fdb042dfcd5efd3344ccc4))
+* **release:** read unpublished drafts with the App token ([8b5698e](https://github.com/jatmn/Codex-warp-sandbox/commit/8b5698e8c5e828402b5208effcb7ce7039a05ba6))
+
 ## [0.1.0](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.0.1...v0.1.0) (2026-08-31)
 
 
