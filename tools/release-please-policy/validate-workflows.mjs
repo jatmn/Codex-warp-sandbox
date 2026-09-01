@@ -210,6 +210,12 @@ const officialToken = release.jobs['publish-official-release'].steps.find(step =
 assert.equal(officialToken.with['client-id'], '${{ vars.RELEASE_APP_CLIENT_ID }}');
 assert.equal(officialToken.with['permission-contents'], 'write');
 assert.equal(officialToken.with['permission-workflows'], 'write');
+const officialVerifyRemote = release.jobs['publish-official-release'].steps.find(
+  step => step.name === 'Verify complete remote checksums');
+assert.equal(officialVerifyRemote.env.GH_TOKEN, '${{ steps.app-token.outputs.token }}',
+  'official publish must verify unpublished draft assets with the App token');
+assert.notEqual(officialVerifyRemote.env.GH_TOKEN, '${{ github.token }}',
+  'contents:read GITHUB_TOKEN cannot download unpublished draft assets');
 
 const officialRecovery = parse('.github/workflows/release-recovery.yml');
 assert.deepEqual(Object.keys(officialRecovery.on), ['workflow_dispatch']);
@@ -218,6 +224,14 @@ assert.deepEqual(officialRecovery.on.workflow_dispatch.inputs.operation.options,
   ['rebuild-draft', 'resume-upload', 'replace-unpublished-assets', 'publish-verified-draft']);
 assert.equal(officialRecovery.jobs.plan.environment, 'release-automation');
 assert.equal(officialRecovery.jobs.mutate.environment, 'release-automation');
+assert.equal(officialRecovery.jobs['load-remote'].environment, 'release-automation',
+  'publish-verified-draft remote load must mint the App token inside release-automation');
+const loadRemoteToken = officialRecovery.jobs['load-remote'].steps.find(step => step.id === 'app-token');
+assert.equal(loadRemoteToken.with['permission-contents'], 'write');
+const loadRemoteDraft = officialRecovery.jobs['load-remote'].steps.find(
+  step => step.name === 'Materialize and authenticate the complete remote draft');
+assert.equal(loadRemoteDraft.env.GH_TOKEN, '${{ steps.app-token.outputs.token }}',
+  'publish-verified-draft must download unpublished draft assets with the App token');
 assert.ok(officialRecovery.jobs.mutate.if.includes("vars.OFFICIAL_RECOVERY_READY == 'true'"));
 const officialRecoverySource = read('.github/workflows/release-recovery.yml');
 assert.ok(officialRecoverySource.includes('.prerelease == false'), 'official recovery must reject prerelease drafts');

@@ -471,10 +471,11 @@ source = source.slice(0, hostStart) + `  # Assemble the complete non-publishable
               gh release upload "$TAG" "$file"
             fi
           done
+      # Unpublished draft assets are hidden from contents:read GITHUB_TOKEN.
       - name: Verify complete remote checksums
         shell: bash
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: \${{ steps.app-token.outputs.token }}
         run: |
           mkdir remote-final
           assets="$(gh api --paginate "repos/\${{ github.repository }}/releases/$RELEASE_ID/assets" | jq -sc 'add // []')"

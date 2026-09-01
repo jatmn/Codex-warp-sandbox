@@ -533,9 +533,12 @@ it.
   use `GITHUB_TOKEN` to publish the official release.
 - Official recovery build/verification jobs: read-only. Only the dedicated
   `resume-upload` artifact-retrieval job additionally receives `actions: read`;
-  it never receives an App token or contents write, and all other recovery
-  operations omit that permission. The final existing-draft mutation/publish
-  step uses the separately generated App token narrowed to
+  it never receives an App token or contents write. `publish-verified-draft`
+  `load-remote` also declares `release-automation` and mints the bounded App
+  token because GitHub hides unpublished draft assets from contents:read
+  `GITHUB_TOKEN`; that job still never uploads, deletes, or undrafts. All other
+  recovery operations omit `actions: read`. The final existing-draft
+  mutation/publish step uses the separately generated App token narrowed to
   `contents: write` and `workflows: write`; do not use `GITHUB_TOKEN` for this
   update. Only the `replace-unpublished-assets` operation may additionally give
   its mutation job `id-token: write` and `attestations: write`, solely to retain
@@ -817,7 +820,10 @@ narrow, deterministic generation overlay:
      downloads the already-verified workflow artifacts, revalidates the exact
      live tag/draft state, then passes the private key to the pinned App-token
      action and requests only `contents: write` and `workflows: write`; bind every
-     release mutation to that short-lived token instead of `GITHUB_TOKEN`; and
+     release mutation to that short-lived token instead of `GITHUB_TOKEN`. GitHub
+     hides unpublished releases and their assets from contents:read `GITHUB_TOKEN`,
+     so draft lookup, unpublished asset download, and pre-undraft remote checksum
+     verification must use that App token; and
    - split the generated remote hosting transaction into distinct workflow
      steps: prepare the final dist manifest, upload assets to the existing draft,
      run the remote release-contract/SHA/checksum verification, and only then
@@ -1376,7 +1382,9 @@ Execution model:
    never delete or overwrite it. For `publish-verified-draft`, rebuild is
    optional, but every existing asset, checksum, both metadata documents,
    attestation, peeled tag commit, and tag/version relationship must verify
-   before any mutation credential exists. `replace-unpublished-assets` requires
+   before upload or undraft. Unpublished draft asset download uses the bounded
+   App token because GitHub hides those assets from contents:read `GITHUB_TOKEN`.
+   `replace-unpublished-assets` requires
    a complete rebuild and may select only exact mismatched asset IDs—including a
    documented GitHub upload remnant in `starter` state—from the never-published
    draft. Before the private key is read, retain, attest, retrieve, and verify a

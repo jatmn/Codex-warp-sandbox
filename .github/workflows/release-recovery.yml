@@ -314,6 +314,7 @@ jobs:
     if: needs.plan.outputs.remote == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    environment: release-automation
     permissions:
       attestations: read
       contents: read
@@ -337,7 +338,17 @@ jobs:
         with: {node-version: 24.20.0, cache: npm, cache-dependency-path: tools/release-please-policy/package-lock.json}
       - run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
         working-directory: tools/release-please-policy
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: Codex-warp-sandbox
+          permission-contents: write
+          permission-workflows: write
       - name: Materialize and authenticate the complete remote draft
+        env: {GH_TOKEN: '${{ steps.app-token.outputs.token }}'}
         run: |
           mkdir candidate
           assets="$(gh api --paginate "repos/${{ github.repository }}/releases/$RELEASE_ID/assets" | jq -sc 'add // []')"

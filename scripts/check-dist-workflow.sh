@@ -43,6 +43,16 @@ assert_safe_overlay() {
   fi
   grep -F 'Upload only missing verified assets' "$workflow" >/dev/null
   grep -F 'Verify complete remote checksums' "$workflow" >/dev/null
+  if ! awk '
+    $0 ~ /name: Verify complete remote checksums/ {in_step=1}
+    in_step && /^      - / && $0 !~ /name: Verify complete remote checksums/ {in_step=0}
+    in_step && /steps\.app-token\.outputs\.token/ {found=1}
+    in_step && /github\.token/ {bad=1}
+    END {exit (found && !bad) ? 0 : 1}
+  ' "$workflow"; then
+    echo 'check-dist-workflow: official remote checksum verify must use the App token' >&2
+    exit 1
+  fi
   grep -F 'Publish exact verified draft' "$workflow" >/dev/null
   grep -F 'prepare-pr-upload-proof:' "$workflow" >/dev/null
   grep -F 'bash scripts/assemble-pr-upload-proof.sh target/distrib identity.json pr-upload-proof' "$workflow" >/dev/null
