@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.3...v0.1.4) (2026-09-01)
+
+
+### Bug Fixes
+
+* **release:** create a missing official draft for an existing tag ([edf0d4d](https://github.com/jatmn/Codex-warp-sandbox/commit/edf0d4dd206fd1532cdec4f00ea38bd95962a8db))
+
 ## [0.1.3](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.2...v0.1.3) (2026-09-01)
 
 
