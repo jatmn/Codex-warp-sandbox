@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.8](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.7...v0.1.8) (2026-09-01)
+
+
+### Bug Fixes
+
+* **release:** allow cutting the next official after a broken Latest ([ae88c44](https://github.com/jatmn/Codex-warp-sandbox/commit/ae88c441e208adf37959a5cac2fe5ea8923ff41d))
+* **release:** re-check draft state before unpublished asset edits ([61bfed1](https://github.com/jatmn/Codex-warp-sandbox/commit/61bfed12b11213be90f6a47d1251b8424788ec98))
+
 ## [0.1.7](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.6...v0.1.7) (2026-09-01)
 
 
