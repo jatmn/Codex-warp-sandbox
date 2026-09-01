@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.2...v0.1.3) (2026-09-01)
+
+
+### Bug Fixes
+
+* **release:** continue Release Please when the latest tag has no draft ([b76c42a](https://github.com/jatmn/Codex-warp-sandbox/commit/b76c42a782d22d6952a32af1920355a472a3c7e5))
+
 ## [0.1.2](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.1...v0.1.2) (2026-09-01)
 
 
