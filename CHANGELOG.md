@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.7](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.6...v0.1.7) (2026-09-01)
+
+
+### Bug Fixes
+
+* **release:** digest historical nightlies with the running helper ([2800c60](https://github.com/jatmn/Codex-warp-sandbox/commit/2800c6076c2c8fb2d301d2b5ef46db0b75eea968))
+* **release:** hash nightly identity files as LF ([ae2e90c](https://github.com/jatmn/Codex-warp-sandbox/commit/ae2e90c9d7025d2d345517f995590cb7d6f29538))
+* **release:** observe unpublished nightly drafts before mutate ([1683bc2](https://github.com/jatmn/Codex-warp-sandbox/commit/1683bc2768fc8cade15882fa77a35f0089381738))
+* **release:** read unpublished nightly drafts with the App token ([5ca1560](https://github.com/jatmn/Codex-warp-sandbox/commit/5ca156092211af3d33a469882282cd3b3ab048d9))
+
 ## [0.1.6](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.5...v0.1.6) (2026-09-01)
 
 
