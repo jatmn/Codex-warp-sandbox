@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.9](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.8...v0.1.9) (2026-09-01)
+
+
+### Bug Fixes
+
+* **release:** allow superseded broken published officials ([ad16430](https://github.com/jatmn/Codex-warp-sandbox/commit/ad16430fc3456e93ec770ac349dfbd7a6b7c1476))
+* **release:** force-cancel origin Nightly before an orphan draft POST ([31df9f3](https://github.com/jatmn/Codex-warp-sandbox/commit/31df9f3a99577357ad95d1a91186ad7d1019281f))
+
 ## [0.1.8](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.7...v0.1.8) (2026-09-01)
 
 
