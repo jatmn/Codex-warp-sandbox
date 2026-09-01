@@ -51,6 +51,7 @@ jobs:
   plan:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    environment: release-automation
     permissions:
       actions: read
       attestations: read
@@ -80,8 +81,19 @@ jobs:
         with: {node-version: 24.20.0, cache: npm, cache-dependency-path: tools/release-please-policy/package-lock.json}
       - run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
         working-directory: tools/release-please-policy
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: Codex-warp-sandbox
+          permission-contents: write
+          permission-workflows: write
       - id: plan
         shell: bash
+        env:
+          RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           [ "${{ github.ref }}" = refs/heads/main ]
           [[ "$TAG" =~ ^nightly-([0-9]{8})-([0-9a-f]{12})$ ]]
@@ -108,7 +120,17 @@ jobs:
           base="$(git show "$SOURCE_SHA:Cargo.toml" | sed -n 's/^version = "\([^"]*\)"/\1/p' | head -1)"
           [[ "$base" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           version="$base-nightly.$date+$short"
-          nightly_releases="$(gh api --paginate "repos/${{ github.repository }}/releases?per_page=100" --jq '[.[] | select(.tag_name | test("^nightly-[0-9]{8}-[0-9a-f]{12}$")) | {id,tag_name,draft,prerelease,published_at}]' | jq -sc 'add // []')"
+          nightly_releases="$(GH_TOKEN="$RELEASE_APP_TOKEN" gh api --paginate "repos/${{ github.repository }}/releases?per_page=100" --jq '[.[] | select(.tag_name | test("^nightly-[0-9]{8}-[0-9a-f]{12}$")) | {id,tag_name,draft,prerelease,published_at}]' | jq -sc 'add // []')"
+          if [[ "$RELEASE_INPUT" =~ ^[1-9][0-9]*$ ]]; then
+            by_id="$(GH_TOKEN="$RELEASE_APP_TOKEN" gh api "repos/${{ github.repository }}/releases/$RELEASE_INPUT")"
+            extra="$(jq -c '{id,tag_name,draft,prerelease,published_at}' <<<"$by_id")"
+            nightly_releases="$(jq -c --argjson extra "$extra" '
+              if ($extra.tag_name | test("^nightly-[0-9]{8}-[0-9a-f]{12}$"))
+              then ([.[] | select(.id != $extra.id)] + [$extra])
+              else .
+              end
+            ' <<<"$nightly_releases")"
+          fi
           while IFS=$'\t' read -r id release_tag; do
             git show-ref --verify --quiet "refs/tags/$release_tag" || { echo "nightly release $id has no immutable tag" >&2; exit 1; }
           done < <(jq -r '.[] | [.id,.tag_name] | @tsv' <<<"$nightly_releases")

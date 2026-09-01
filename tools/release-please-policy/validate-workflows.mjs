@@ -308,11 +308,18 @@ assert.deepEqual(nightlyRecovery.on.workflow_dispatch.inputs.operation.options,
 assert.equal(nightlyRecovery.on.workflow_dispatch.inputs.evidence_manifest_sha256.default, '');
 assert.ok(nightlyRecovery.jobs['mutate-release'].if.includes("vars.NIGHTLY_RECOVERY_READY == 'true'"));
 assert.ok(nightlyRecovery.jobs['repair-branch'].if.includes("vars.NIGHTLY_RECOVERY_READY == 'true'"));
+assert.equal(nightlyRecovery.jobs.plan.environment, 'release-automation',
+  'nightly recovery plan must mint the App token inside release-automation');
 assert.equal(nightlyRecovery.jobs['mutate-release'].environment, 'release-automation');
 assert.equal(nightlyRecovery.jobs['repair-branch'].environment, 'release-automation');
+const nightlyPlanToken = nightlyRecovery.jobs.plan.steps.find(step => step.id === 'app-token');
+assert.equal(nightlyPlanToken.with['client-id'], '${{ vars.RELEASE_APP_CLIENT_ID }}');
+assert.equal(nightlyPlanToken.with['permission-contents'], 'write');
 assert.deepEqual(nightlyRecovery.jobs.build.strategy.matrix.include.map(item => item.target).sort(),
   contract.targets.map(item => item.triple).sort());
 const nightlyRecoverySource = read('.github/workflows/nightly-recovery.yml');
+assert.ok(nightlyRecoverySource.includes('releases/$RELEASE_INPUT'),
+  'nightly recovery plan must read an unpublished draft by ID with the App token');
 assert.ok(!nightlyRecoverySource.includes('-f ref=refs/tags/'), 'nightly recovery must never create or move a tag');
 assert.equal(nightlyRecovery.jobs.plan.steps.find(step => step.uses?.startsWith('actions/checkout@')).with.ref, '${{ github.workflow_sha }}');
 for (const jobName of ['load-origin', 'mutate-release', 'repair-branch']) {
