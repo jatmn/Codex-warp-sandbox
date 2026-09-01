@@ -197,6 +197,17 @@ attestation from a pull-request or unrelated workflow is not release evidence.
 It cannot create/delete a release, create/move/delete a tag, change a version,
 or mutate a published release.
 
+For `recover-orphan-tag`, force-cancel the origin Nightly as soon as the
+immutable tag and `nightly-tag-creation-receipt` exist. Cooperative
+`gh run cancel` can still POST the draft and upload assets. The draft step
+must appear with a non-success conclusion and no release object.
+
+For `replace-unpublished-assets`, inject the attested mismatch only after a
+fresh GET shows `draft=true` and `published_at=null`, during
+`attest-official-metadata` after the eleven assets exist and before
+`publish-official-release` starts. Then force-cancel the origin tag job.
+Do not inject after cancel if that GET already shows a published release.
+
 Nightly Recovery accepts:
 
 - `resume-draft`: authenticate the exact retained candidate from the supplied
