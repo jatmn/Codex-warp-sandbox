@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.1...v0.1.2) (2026-09-01)
+
+
+### Bug Fixes
+
+* **release:** verify unpublished draft assets with the App token ([9d373b9](https://github.com/jatmn/Codex-warp-sandbox/commit/9d373b919859e0416226e4e4c0e8f8c8d6fb842d))
+
 ## [0.1.1](https://github.com/jatmn/Codex-warp-sandbox/compare/v0.1.0...v0.1.1) (2026-09-01)
 
 
