@@ -2,6 +2,7 @@
 set -euo pipefail
 export LC_ALL=C
 
+scripts_dir="$(cd "$(dirname "$0")" && pwd)"
 root="${1:-$(git rev-parse --show-toplevel)}"
 cd "$root"
 list="tools/nightly-packaging-contract.txt"
@@ -37,8 +38,8 @@ while IFS= read -r input || [ -n "$input" ]; do
   list_input_files "$input"
 done <"$list" | sed 's#\\#/#g; s#^\./##' | LC_ALL=C sort -u | while IFS= read -r file; do
   file="${file%$'\r'}"
-  printf '%s\0%s\n' "$file" "$(bash scripts/sha256-lf-file.sh "$file")"
+  printf '%s\0%s\n' "$file" "$(bash "$scripts_dir/sha256-lf-file.sh" "$file")"
 done >"$temp"
-digest="$(bash scripts/sha256-file.sh "$temp")"
+digest="$(bash "$scripts_dir/sha256-file.sh" "$temp")"
 [[ "$digest" =~ ^[0-9a-f]{64}$ ]] || { echo 'nightly-contract-digest: invalid digest' >&2; exit 1; }
 printf '%s\n' "$digest"

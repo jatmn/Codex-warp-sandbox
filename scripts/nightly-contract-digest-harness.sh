@@ -101,4 +101,14 @@ if [ "$crlf_tracked" != "$tracked_digest" ]; then
   exit 1
 fi
 
+copy_contract_tree "$tmp/historical"
+grep -Fxv 'scripts/sha256-lf-file.sh' "$root/tools/nightly-packaging-contract.txt" \
+  >"$tmp/historical/tools/nightly-packaging-contract.txt"
+rm -f "$tmp/historical/scripts/sha256-lf-file.sh"
+historical="$(bash "$root/scripts/nightly-contract-digest.sh" "$tmp/historical")"
+[[ "$historical" =~ ^[0-9a-f]{64}$ ]] || {
+  echo 'nightly-contract-digest-harness: a historical tree without sha256-lf-file.sh failed to digest' >&2
+  exit 1
+}
+
 echo 'nightly-contract-digest-harness: ok'
