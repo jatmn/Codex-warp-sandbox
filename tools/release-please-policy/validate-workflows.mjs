@@ -320,6 +320,8 @@ assert.deepEqual(nightlyRecovery.jobs.build.strategy.matrix.include.map(item => 
 const nightlyRecoverySource = read('.github/workflows/nightly-recovery.yml');
 assert.ok(nightlyRecoverySource.includes('releases/$RELEASE_INPUT'),
   'nightly recovery plan must read an unpublished draft by ID with the App token');
+assert.ok(nightlyRecovery.jobs['mutate-release'].steps.some(step => step.id === 'app-token-read'),
+  'nightly recovery mutate must mint an App token before observing unpublished drafts');
 assert.ok(!nightlyRecoverySource.includes('-f ref=refs/tags/'), 'nightly recovery must never create or move a tag');
 assert.equal(nightlyRecovery.jobs.plan.steps.find(step => step.uses?.startsWith('actions/checkout@')).with.ref, '${{ github.workflow_sha }}');
 for (const jobName of ['load-origin', 'mutate-release', 'repair-branch']) {
