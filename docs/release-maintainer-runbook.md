@@ -175,6 +175,10 @@ Official Release Recovery accepts:
 - `replace-unpublished-assets`: delete only mismatched assets from the exact
   never-published draft after retained, attested intent; and
 - `publish-verified-draft`: publish an already complete, fully verified draft.
+  Use it when the exact eleven assets are already on that never-published draft.
+  If the normal tag workflow attached those assets but has not yet set
+  `draft=false`, stop that publish job and continue through this operation
+  instead of starting another official version.
 
 Official archive and metadata attestations are accepted only when their signed
 identity names the reviewed `Release` tag workflow or `Release Recovery` main

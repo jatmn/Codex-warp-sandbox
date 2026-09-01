@@ -21,7 +21,7 @@ write_output() {
   fi
 }
 
-git fetch --no-tags origin main >/dev/null
+git fetch --no-tags origin main >/dev/null 2>&1
 git fetch origin 'refs/tags/v*:refs/tags/v*' >/dev/null 2>&1 || true
 
 mapfile -t official_tags < <(
