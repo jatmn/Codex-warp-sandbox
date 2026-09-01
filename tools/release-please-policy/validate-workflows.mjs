@@ -139,6 +139,8 @@ assert.ok(missingDraftSource.includes('target_commitish'),
   'missing-draft create must bind the draft to the peeled tag SHA');
 assert.ok(!read('.github/workflows/release-please.yml').includes('gh release create'),
   'Release Please must not use gh release create');
+assert.ok(read('.github/workflows/release-please.yml').includes('releases/latest'),
+  'missing-draft create must not promote the unpublished tag to Latest');
 
 const nightly = parse('.github/workflows/nightly.yml');
 assert.deepEqual(nightly.concurrency, {group: 'nightly-release', queue: 'max'});
