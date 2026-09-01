@@ -186,8 +186,9 @@ the exact release ID and require `draft=true` and `published_at=null` immediatel
 before any asset delete or upload. Do not use `gh release upload` as a draft
 mutation; if that GET already shows a published release, stop. Recovery cannot
 repair published bytes. Cut the next official version instead. Prior-release
-verification still fail-closes on an older corrupt published tag, but it allows
-a broken published Latest so Release Please can open that next version.
+verification still fail-closes on a missing release, outstanding draft, or
+active official run, but it allows a broken published official so Release Please
+can open that next version. Published bytes cannot be repaired.
 
 Official archive and metadata attestations are accepted only when their signed
 identity names the reviewed `Release` tag workflow or `Release Recovery` main

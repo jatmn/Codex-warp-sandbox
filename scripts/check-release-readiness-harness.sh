@@ -71,7 +71,7 @@ expect_fail active-finalizer
 expect_fail active-recovery
 expect_ok incomplete
 fixture incomplete-prior "${genuine_args[@]}" maintainer "$allowed" '{"tags":["v0.1.0","v0.1.1"],"releases":[{"id":1,"tag_name":"v0.1.0","draft":false,"prerelease":false,"published_at":"2026-08-30T00:00:00Z","complete":false},{"id":2,"tag_name":"v0.1.1","draft":false,"prerelease":false,"published_at":"2026-08-30T00:00:00Z","complete":true}],"activeOfficialTags":[]}'
-expect_fail incomplete-prior
+expect_ok incomplete-prior
 
 # A different event actor cannot change the creator-based classification.
 if ! jq -e '.sender.login == "different-rerun-actor" and .pull_request.user.login == "codex-warp-release[bot]"' "$tmp/genuine.json" >/dev/null; then

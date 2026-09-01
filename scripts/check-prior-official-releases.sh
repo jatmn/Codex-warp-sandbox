@@ -109,21 +109,15 @@ while IFS= read -r tag; do
   if [ "$fixture" = true ]; then
     if jq -e --arg tag "$tag" '.[] | select(.tag_name == $tag and .complete == true)' <<<"$releases" >/dev/null; then
       :
-    elif [ "$tag" = "$latest_official" ]; then
-      echo "check-prior-official-releases: allowing broken published latest $tag; cut the next official version"
     else
-      echo "check-prior-official-releases: $tag lacks complete publication evidence" >&2
-      exit 1
+      echo "check-prior-official-releases: allowing broken published official $tag; published bytes cannot be repaired"
     fi
   else
     [[ "$release_id" =~ ^[1-9][0-9]*$ ]]
     if verify_complete_release "$tag" "$release_id"; then
       :
-    elif [ "$tag" = "$latest_official" ]; then
-      echo "check-prior-official-releases: allowing broken published latest $tag; cut the next official version"
     else
-      echo "check-prior-official-releases: $tag lacks complete publication evidence" >&2
-      exit 1
+      echo "check-prior-official-releases: allowing broken published official $tag; published bytes cannot be repaired"
     fi
   fi
 done < <(jq -r '.[]' <<<"$tags")
