@@ -426,6 +426,13 @@ and fail when:
 - an earlier official SemVer tag has no complete published release; or
 - an official finalizer/recovery concurrency group is active for an earlier tag.
 
+A new Release Please PR still cannot merge in the correct-tag/missing-draft
+state. The Release Please workflow itself may continue that newest tag: it
+allows the latest official SemVer tag to have zero release objects, then
+rechecks with the App token because GitHub hides unpublished drafts from
+contents:read `GITHUB_TOKEN`. That continuation creates one draft for the
+existing unmoved tag and must not propose a newer version.
+
 Ordinary contributor PRs do not need this release-state check. A PR that matches
 the configured release branch or recorded App identity but fails any other
 Release Please identity/output predicate is automation-shaped ambiguous state;
@@ -2273,10 +2280,14 @@ tag rewrite, or manual asset editing.
   including `workflows: write`; policy tests reject its omission and reject that
   permission on build or collection jobs.
 - A newer Release Please PR cannot merge while an earlier official draft or
-  incomplete official tag exists. Only a same-repository PR whose exact base,
-  configured head branch, recorded App bot creator, and allowed release-output
-  files all match can enter Release Please readiness mode; automation-shaped
-  partial matches fail closed and ordinary PRs remain unaffected.
+  incomplete official tag exists. Release Please workflow continuation may
+  create the missing draft for the newest official tag when that tag exists
+  with no release object; it rechecks that state with the App token so a hidden
+  unpublished draft cannot be mistaken for absence. Only a same-repository PR
+  whose exact base, configured head branch, recorded App bot creator, and allowed
+  release-output files all match can enter Release Please readiness mode;
+  automation-shaped partial matches fail closed and ordinary PRs remain
+  unaffected.
 - Official recovery runs workflow logic from protected `main`, validates the
   exact tagged source and either rebuilds it under the tagged/recipe-selected
   contract or resumes exact retained evidence according to the selected

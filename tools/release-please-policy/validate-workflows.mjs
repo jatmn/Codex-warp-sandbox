@@ -101,6 +101,18 @@ assert.deepEqual(rpToken.with, {
   'permission-issues': 'write',
   'permission-workflows': 'write',
 });
+const rpSteps = releasePlease.jobs['release-please'].steps;
+const rpTokenIdx = rpSteps.findIndex(step => step.id === 'app-token');
+const rpActionIdx = rpSteps.findIndex(step => step.id === 'release');
+const rpPriorAfterToken = rpSteps.slice(rpTokenIdx + 1, rpActionIdx).find(step =>
+  typeof step.run === 'string' && step.run.includes('check-prior-official-releases.sh'));
+assert.equal(rpPriorAfterToken.env.GH_TOKEN, '${{ steps.app-token.outputs.token }}',
+  'Release Please must recheck prior releases with a draft-visible App token');
+assert.equal(rpPriorAfterToken.env.OFFICIAL_ALLOW_MISSING_LATEST_TAG, '1');
+assert.ok(read('.github/workflows/release-please.yml').includes('OFFICIAL_ALLOW_MISSING_LATEST_TAG=1'),
+  'Release Please may continue a missing-draft latest tag');
+assert.ok(!read('scripts/check-release-readiness.sh').includes('OFFICIAL_ALLOW_MISSING_LATEST_TAG'),
+  'a new official release PR must not merge while the latest tag is unpublished');
 const rpAction = releasePlease.jobs['release-please'].steps.find(step => step.id === 'release');
 assert.equal(rpAction.uses, `googleapis/release-please-action@${tooling.releasePleaseAction.commit}`);
 assert.equal(rpAction.with['target-branch'], 'main');

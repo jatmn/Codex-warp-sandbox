@@ -39,7 +39,7 @@ jobs:
             echo 'Release Please mutation is disabled by reviewed policy.' >>"$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          bash scripts/check-prior-official-releases.sh
+          OFFICIAL_ALLOW_MISSING_LATEST_TAG=1 bash scripts/check-prior-official-releases.sh
           echo 'ready=true' >>"$GITHUB_OUTPUT"
 
   release-please:
@@ -79,7 +79,7 @@ jobs:
           [ "$(git rev-parse HEAD)" = "$live_main" ]
           [ "${{ vars.OFFICIAL_RELEASES_ENABLED }}" = true ]
           [ "$(jq -r '.enabled' tools/release-automation-policy.json)" = true ]
-          bash scripts/check-prior-official-releases.sh
+          OFFICIAL_ALLOW_MISSING_LATEST_TAG=1 bash scripts/check-prior-official-releases.sh
       - id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -91,6 +91,11 @@ jobs:
           permission-pull-requests: write
           permission-issues: write
           permission-workflows: write
+      - name: Revalidate prior official releases with draft-visible token
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          OFFICIAL_ALLOW_MISSING_LATEST_TAG: '1'
+        run: bash scripts/check-prior-official-releases.sh
       - id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
