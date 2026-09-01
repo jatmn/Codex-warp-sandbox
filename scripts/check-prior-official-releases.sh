@@ -107,13 +107,24 @@ while IFS= read -r tag; do
   fi
   release_id="$(jq -r --arg tag "$tag" '.[] | select(.tag_name == $tag and .draft == false and .prerelease == false and .published_at != null) | .id // empty' <<<"$releases")"
   if [ "$fixture" = true ]; then
-    jq -e --arg tag "$tag" '.[] | select(.tag_name == $tag and .complete == true)' <<<"$releases" >/dev/null || {
+    if jq -e --arg tag "$tag" '.[] | select(.tag_name == $tag and .complete == true)' <<<"$releases" >/dev/null; then
+      :
+    elif [ "$tag" = "$latest_official" ]; then
+      echo "check-prior-official-releases: allowing broken published latest $tag; cut the next official version"
+    else
       echo "check-prior-official-releases: $tag lacks complete publication evidence" >&2
       exit 1
-    }
+    fi
   else
     [[ "$release_id" =~ ^[1-9][0-9]*$ ]]
-    verify_complete_release "$tag" "$release_id"
+    if verify_complete_release "$tag" "$release_id"; then
+      :
+    elif [ "$tag" = "$latest_official" ]; then
+      echo "check-prior-official-releases: allowing broken published latest $tag; cut the next official version"
+    else
+      echo "check-prior-official-releases: $tag lacks complete publication evidence" >&2
+      exit 1
+    fi
   fi
 done < <(jq -r '.[]' <<<"$tags")
 
