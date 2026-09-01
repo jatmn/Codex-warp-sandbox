@@ -180,6 +180,13 @@ Official Release Recovery accepts:
   `draft=false`, stop that publish job and continue through this operation
   instead of starting another official version.
 
+Cancel-before-undraft is not proof that the draft is still unpublished. The
+tag job may still PATCH `draft=false` after `gh run cancel` returns. Re-GET
+the exact release ID and require `draft=true` and `published_at=null` immediately
+before any asset delete or upload. Do not use `gh release upload` as a draft
+mutation; if that GET already shows a published release, stop. Recovery cannot
+repair published bytes. Cut the next official version instead.
+
 Official archive and metadata attestations are accepted only when their signed
 identity names the reviewed `Release` tag workflow or `Release Recovery` main
 workflow and the expected source/control digest. A repository-scoped
