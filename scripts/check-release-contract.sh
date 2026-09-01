@@ -190,7 +190,13 @@ validate_assets() {
     jq -r '.unifiedChecksumFilename, .distManifestFilename, .metadataFilename' "$contract"
   } | sort >"$expected_list"
   find "$assets" -maxdepth 1 -type f -printf '%f\n' | sort >"$actual_list"
-  cmp "$expected_list" "$actual_list" >/dev/null || die 'release asset inventory differs from the contract'
+  if ! cmp "$expected_list" "$actual_list" >/dev/null; then
+    echo 'check-release-contract: expected assets:' >&2
+    cat "$expected_list" >&2
+    echo 'check-release-contract: actual assets:' >&2
+    cat "$actual_list" >&2
+    die 'release asset inventory differs from the contract'
+  fi
   [ "$(wc -l <"$expected_list")" -eq 11 ] || die 'derived official asset contract must contain eleven files'
   [ "$(sha256sum "$assets/$(jq -r '.distManifestFilename' "$contract")" | awk '{print $1}')" = "$manifest_sha" ] || die 'asset dist manifest differs from the validated manifest'
   [ "$(sha256sum "$assets/$(jq -r '.metadataFilename' "$contract")" | awk '{print $1}')" = "$(sha256sum "$metadata" | awk '{print $1}')" ] || die 'asset metadata differs from the validated sidecar'

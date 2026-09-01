@@ -180,6 +180,13 @@ assert.ok(proofPrepare.if.includes("github.event_name == 'pull_request'"));
 assert.ok(proofPrepare.if.includes('github.event.pull_request.head.repo.full_name == github.repository'));
 assert.ok(proofPrepare.if.includes("fromJson(needs.plan.outputs.val).ci.github.pr_run_mode == 'upload'"));
 assert.ok(proofPrepare.steps.some(step => step.run === 'bash scripts/assemble-pr-upload-proof.sh target/distrib identity.json pr-upload-proof'));
+const officialPrepare = release.jobs['prepare-official-release'];
+assert.ok(officialPrepare.steps.some(step => typeof step.run === 'string' &&
+  step.run.includes('bash scripts/assemble-official-candidate.sh target/distrib identity.json dist-manifest.json release-assets')),
+  'official prepare must assemble the eleven-file candidate from contract-named dist outputs');
+assert.ok(!officialPrepare.steps.some(step => typeof step.run === 'string' &&
+  step.run.includes("jq -r '.upload_files[]' dist-manifest.json")),
+  'official prepare must not copy dist host upload_files as the release candidate');
 const proofAttest = release.jobs['attest-pr-upload-proof-metadata'];
 assert.equal(proofAttest.environment, undefined);
 assert.deepEqual(proofAttest.permissions, {attestations: 'write', contents: 'read', 'id-token': 'write'});
@@ -215,7 +222,12 @@ assert.ok(officialRecovery.jobs.mutate.if.includes("vars.OFFICIAL_RECOVERY_READY
 const officialRecoverySource = read('.github/workflows/release-recovery.yml');
 assert.ok(officialRecoverySource.includes('.prerelease == false'), 'official recovery must reject prerelease drafts');
 assert.equal(officialRecovery.jobs.plan.steps.find(step => step.uses?.startsWith('actions/checkout@')).with.ref, '${{ github.workflow_sha }}');
-for (const jobName of ['load-retained', 'load-remote', 'mutate']) {
+assert.ok(officialRecovery.jobs['collect-rebuild'].steps.some(step => typeof step.run === 'string' &&
+  step.run.includes('bash scripts/assemble-official-candidate.sh release-source/target/distrib identity.json dist-manifest.json candidate')),
+  'official recovery collect must assemble the eleven-file candidate from contract-named dist outputs');
+assert.ok(!officialRecoverySource.includes("jq -r '.upload_files[]' dist-manifest.json"),
+  'official recovery must not copy dist host upload_files as the release candidate');
+for (const jobName of ['collect-rebuild', 'load-retained', 'load-remote', 'mutate']) {
   const job = officialRecovery.jobs[jobName];
   assert.equal(job.steps.find(step => step.uses?.startsWith('actions/checkout@')).with.ref, '${{ github.workflow_sha }}',
     `official recovery ${jobName} must execute immutable dispatch control code`);

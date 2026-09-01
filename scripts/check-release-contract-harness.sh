@@ -94,6 +94,50 @@ proof="$tmp/proof"
 bash scripts/assemble-pr-upload-proof.sh "$distrib" "$tmp/proof-identity.json" "$proof" >/dev/null
 bash scripts/check-release-contract.sh pr-upload-proof "$proof" "$proof/codex-warp-release-metadata.json" "$proof/dist-manifest.json" >/dev/null
 
+printf 'not-a-release-asset\n' >"$distrib/extra-upload-file.txt"
+mkdir -p "$distrib/codex-warp-x86_64-unknown-linux-gnu"
+printf 'unpacked-binary\n' >"$distrib/codex-warp-x86_64-unknown-linux-gnu/codex-warp"
+jq '.announcement_tag_is_implicit = false' "$tmp/manifest.json" >"$tmp/official-manifest.json"
+jq '
+  .publishable = true |
+  .tag = "v0.1.0" |
+  .peeledTagSha = .sourceSha |
+  .releaseId = 99 |
+  .pullRequest = null
+' "$tmp/proof-identity.json" >"$tmp/official-identity.json"
+official="$tmp/official"
+bash scripts/assemble-official-candidate.sh "$distrib" "$tmp/official-identity.json" "$tmp/official-manifest.json" "$official" >/dev/null
+[ ! -e "$official/extra-upload-file.txt" ] || {
+  echo 'check-release-contract-harness: official assemble copied a non-contract file' >&2
+  exit 1
+}
+[ ! -e "$official/x86_64-unknown-linux-gnu-runner.json" ] || {
+  echo 'check-release-contract-harness: official assemble copied runner evidence' >&2
+  exit 1
+}
+[ "$(jq -r '.mode' "$official/codex-warp-release-metadata.json")" = official ] || {
+  echo 'check-release-contract-harness: official assemble wrote the wrong metadata mode' >&2
+  exit 1
+}
+{
+  jq -r '.dist.artifacts[] | .archive, .checksumFile' "$official/codex-warp-release-metadata.json"
+  jq -r '.unifiedChecksumFilename, .distManifestFilename, .metadataFilename' tools/release-contract.json
+} | sort >"$tmp/official-expected.txt"
+find "$official" -maxdepth 1 -type f -printf '%f\n' | sort >"$tmp/official-actual.txt"
+cmp "$tmp/official-expected.txt" "$tmp/official-actual.txt" >/dev/null || {
+  echo 'check-release-contract-harness: official assemble inventory differs from the contract' >&2
+  diff -u "$tmp/official-expected.txt" "$tmp/official-actual.txt" || true
+  exit 1
+}
+[ "$(wc -l <"$tmp/official-expected.txt")" -eq 11 ] || {
+  echo 'check-release-contract-harness: official assemble did not write eleven files' >&2
+  exit 1
+}
+if bash scripts/assemble-official-candidate.sh "$distrib" "$tmp/official-identity.json" "$tmp/manifest.json" "$tmp/official-implicit" >/dev/null 2>&1; then
+  echo 'check-release-contract-harness: assembled official candidate from an implicit announcement tag' >&2
+  exit 1
+fi
+
 jq '.publishable = true' "$proof/codex-warp-release-metadata.json" >"$tmp/invalid-metadata.json"
 if bash scripts/check-release-contract.sh pr-upload-proof "$proof" "$tmp/invalid-metadata.json" "$proof/dist-manifest.json" >/dev/null 2>&1; then
   echo 'check-release-contract-harness: accepted publishable proof metadata' >&2

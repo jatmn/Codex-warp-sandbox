@@ -425,13 +425,7 @@ jobs:
       - name: Assemble and validate exact asset set
         shell: bash
         run: |
-          mkdir release-assets
-          while IFS= read -r file; do
-            [ -f "$file" ]
-            cp "$file" release-assets/
-          done < <(jq -r '.upload_files[]' dist-manifest.json)
-          cp dist-manifest.json release-assets/dist-manifest.json
-          bash scripts/generate-release-metadata.sh official identity.json dist-manifest.json release-assets/codex-warp-release-metadata.json
+          bash scripts/assemble-official-candidate.sh target/distrib identity.json dist-manifest.json release-assets
           SOURCE_DIR="$PWD" bash scripts/check-release-contract.sh official-publication release-assets release-assets/codex-warp-release-metadata.json release-assets/dist-manifest.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

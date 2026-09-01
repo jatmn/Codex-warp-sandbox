@@ -46,6 +46,16 @@ assert_safe_overlay() {
   grep -F 'Publish exact verified draft' "$workflow" >/dev/null
   grep -F 'prepare-pr-upload-proof:' "$workflow" >/dev/null
   grep -F 'bash scripts/assemble-pr-upload-proof.sh target/distrib identity.json pr-upload-proof' "$workflow" >/dev/null
+  grep -F 'bash scripts/assemble-official-candidate.sh target/distrib identity.json dist-manifest.json release-assets' "$workflow" >/dev/null
+  if awk '
+    $0 ~ /name: Assemble and validate exact asset set/ {in_step=1}
+    in_step && /^      - / && $0 !~ /name: Assemble and validate exact asset set/ {in_step=0}
+    in_step && /upload_files/ {found=1}
+    END {exit found ? 0 : 1}
+  ' "$workflow"; then
+    echo 'check-dist-workflow: official assemble must not copy dist host upload_files' >&2
+    exit 1
+  fi
   grep -F 'attest-pr-upload-proof-metadata:' "$workflow" >/dev/null
   grep -F "github.event.pull_request.head.repo.full_name == github.repository && fromJson(needs.plan.outputs.val).ci.github.pr_run_mode == 'upload'" "$workflow" >/dev/null
   grep -F 'name: Build native archives' "$workflow" >/dev/null
