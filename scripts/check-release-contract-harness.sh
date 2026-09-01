@@ -20,6 +20,20 @@ cp -R configs/. "$tmp/$archive_name/configs/"
 tar -cJf "$tmp/$archive_name.tar.xz" -C "$tmp" "$archive_name"
 bash scripts/check-release-contract.sh archive "$tmp/$archive_name.tar.xz" x86_64-unknown-linux-gnu "$root" "$version" >/dev/null
 
+crlf_source="$tmp/crlf-source"
+mkdir -p "$crlf_source/configs"
+cp codex-warp.toml README.md LICENSE NOTICE CHANGELOG.md "$crlf_source/"
+cp -R configs/. "$crlf_source/configs/"
+python3 - "$crlf_source" <<'PY'
+from pathlib import Path
+import sys
+root = Path(sys.argv[1])
+for path in [root / 'codex-warp.toml', root / 'README.md', root / 'LICENSE', root / 'NOTICE', root / 'CHANGELOG.md', *sorted((root / 'configs').rglob('*'))]:
+    if path.is_file():
+        path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n'))
+PY
+bash scripts/check-release-contract.sh archive "$tmp/$archive_name.tar.xz" x86_64-unknown-linux-gnu "$crlf_source" "$version" >/dev/null
+
 prefix_name='codex-warp-nightly-20260830-111111111111-x86_64-unknown-linux-gnu'
 cp -R "$tmp/$archive_name" "$tmp/$prefix_name"
 printf '%s\n' '#!/usr/bin/env bash' "case \"\${1:-}\" in --version) echo \"codex-warp $prefix_collision\" ;; --help) exit 0 ;; *) exit 1 ;; esac" >"$tmp/$prefix_name/codex-warp"

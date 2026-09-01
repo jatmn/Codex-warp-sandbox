@@ -88,4 +88,17 @@ if [ "$junk_digest" != "$tracked_digest" ]; then
   exit 1
 fi
 
+python3 - "$tmp/tracked/LICENSE" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+text = path.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+path.write_bytes(text)
+PY
+crlf_tracked="$(bash "$tmp/tracked/scripts/nightly-contract-digest.sh" "$tmp/tracked")"
+if [ "$crlf_tracked" != "$tracked_digest" ]; then
+  echo 'nightly-contract-digest-harness: CRLF worktree bytes changed packagingContractSha256' >&2
+  exit 1
+fi
+
 echo 'nightly-contract-digest-harness: ok'

@@ -12,13 +12,6 @@ done
 
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
-# Windows runners may materialize CRLF working trees. Identity hashes and
-# packaged text files must match the LF git blobs used on other runners.
-if [ "${RUNNER_OS:-}" = Windows ]; then
-  git config core.autocrlf false
-  git config core.eol lf
-  git reset --hard HEAD
-fi
 base_version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)"
 [ "$NIGHTLY_VERSION" = "$base_version-nightly.$NIGHTLY_DATE+${NIGHTLY_SOURCE_SHA:0:12}" ]
 [ "$(git rev-parse HEAD)" = "$NIGHTLY_SOURCE_SHA" ]
@@ -38,11 +31,15 @@ archive="$archive_base.$extension"
 temp="$(mktemp -d)"
 trap 'rm -rf "$temp"' EXIT
 stage="$temp/$archive_base"
-mkdir -p "$stage/configs"
+mkdir -p "$stage"
 cp "$BINARY_PATH" "$stage/$binary_name"
 chmod +x "$stage/$binary_name" 2>/dev/null || true
-cp codex-warp.toml README.md LICENSE NOTICE CHANGELOG.md "$stage/"
-cp -R configs/. "$stage/configs/"
+# Copy tracked payload bytes from git, not the working tree. Windows runners
+# may materialize CRLF checkouts; collectors compare archives to Linux LF files.
+git archive --format=tar HEAD -- \
+  codex-warp.toml README.md LICENSE NOTICE CHANGELOG.md configs \
+  >"$temp/source.tar"
+tar -xf "$temp/source.tar" -C "$stage"
 
 packaging_tools='{}'
 record_tool() {
@@ -74,10 +71,10 @@ jq -n \
   --arg repository 'jatmn/Codex-warp-sandbox' --arg tag "$NIGHTLY_TAG" --arg date "$NIGHTLY_DATE" \
   --arg source "$NIGHTLY_SOURCE_SHA" --arg base "$base_version" --arg version "$NIGHTLY_VERSION" \
   --arg workflow "$WORKFLOW_URL" --arg workflow_sha "$WORKFLOW_SHA" \
-  --arg lock "$(bash scripts/sha256-file.sh Cargo.lock)" \
-  --arg toolchain "$(bash scripts/sha256-file.sh rust-toolchain.toml)" \
+  --arg lock "$(bash scripts/sha256-lf-file.sh Cargo.lock)" \
+  --arg toolchain "$(bash scripts/sha256-lf-file.sh rust-toolchain.toml)" \
   --arg contract "$contract" \
-  --arg script "$(bash scripts/sha256-file.sh scripts/package-nightly.sh)" \
+  --arg script "$(bash scripts/sha256-lf-file.sh scripts/package-nightly.sh)" \
   --arg target "$TARGET" --arg archive "$archive" --arg archive_sha "$archive_sha" \
   --arg checksum "$archive.sha256" --arg runner "$RUNNER_LABEL" --arg image "$RUNNER_IMAGE" \
   --arg rustc "$(rustc -Vv)" --arg cargo "$(cargo -Vv)" --arg native "$native_tools" \

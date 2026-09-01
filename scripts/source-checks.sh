@@ -93,6 +93,10 @@ if command -v node >/dev/null 2>&1; then
     fail=1
   fi
 
+  if ! bash scripts/sha256-lf-file-harness.sh; then
+    fail=1
+  fi
+
   if ! bash scripts/check-sha256-index-harness.sh; then
     fail=1
   fi

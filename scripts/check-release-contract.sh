@@ -90,14 +90,14 @@ validate_archive() {
       find "$payload" -maxdepth 3 -type f -print >&2 || true
       die "archive is missing $required"
     fi
-    [ "$(bash scripts/sha256-file.sh "$payload/$required")" = "$(bash scripts/sha256-file.sh "$source/$required")" ] ||
+    [ "$(bash scripts/sha256-lf-file.sh "$payload/$required")" = "$(bash scripts/sha256-lf-file.sh "$source/$required")" ] ||
       die "$required does not match the selected source"
   done < <(jq -r '.requiredArchiveEntries[]' "$contract")
   (cd "$source/configs" && find . -type f -print | sed 's#^\./##' | LC_ALL=C sort) >"$temp/source-configs.txt"
   [ -s "$temp/source-configs.txt" ] || die 'selected source has no configuration files'
   while IFS= read -r config_file; do
     [ -f "$payload/configs/$config_file" ] || die "archive is missing configs/$config_file"
-    [ "$(bash scripts/sha256-file.sh "$payload/configs/$config_file")" = "$(bash scripts/sha256-file.sh "$source/configs/$config_file")" ] ||
+    [ "$(bash scripts/sha256-lf-file.sh "$payload/configs/$config_file")" = "$(bash scripts/sha256-lf-file.sh "$source/configs/$config_file")" ] ||
       die "configs/$config_file does not match the selected source"
   done <"$temp/source-configs.txt"
   (cd "$payload/configs" && find . -type f -print | sed 's#^\./##' | LC_ALL=C sort) >"$temp/archive-configs.txt"

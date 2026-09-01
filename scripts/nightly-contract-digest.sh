@@ -37,7 +37,7 @@ while IFS= read -r input || [ -n "$input" ]; do
   list_input_files "$input"
 done <"$list" | sed 's#\\#/#g; s#^\./##' | LC_ALL=C sort -u | while IFS= read -r file; do
   file="${file%$'\r'}"
-  printf '%s\0%s\n' "$file" "$(bash scripts/sha256-file.sh "$file")"
+  printf '%s\0%s\n' "$file" "$(bash scripts/sha256-lf-file.sh "$file")"
 done >"$temp"
 digest="$(bash scripts/sha256-file.sh "$temp")"
 [[ "$digest" =~ ^[0-9a-f]{64}$ ]] || { echo 'nightly-contract-digest: invalid digest' >&2; exit 1; }
